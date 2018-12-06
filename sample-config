@@ -1,0 +1,16 @@
+{
+  "username":"MyUsername",
+  "password":"MyPassword",
+  "api_url":"https://www.simplelists.com/api/api.php",
+  "token_url":"https://www.simplelists.com/api/token.php",
+  "client_id":"MyClientID",
+  "client_secret":"MyClientSecret",
+  "authorization_url":"https://www.simplelists.com/api/authorize.php",
+  "db_host":"127.0.0.1",
+  "db_name":"MyDatabaseName",
+  "db_username":"MyDatabaseUsername",
+  "db_password":"MyDatabasePassword",
+  "list_name":"%",
+  "db_query_string":"select a.id, a.user_email, b.user_id, b.status,b.membership_id from wp_users a inner join (select sub.user_id,sub.status,sub.membership_id from wp_pmpro_memberships_users sub where sub.status = \"active\" and sub.membership_id=1) as b where a.id = b.user_id;"
+}
+

@@ -32,6 +32,7 @@ def get_oauth_token(config):
     return(simplelists)
 
 def query_api(api,config):
+    returned_addr = []
     query_json = {'entity':'contact',
             'action': 'get',
             'params': {
@@ -46,11 +47,21 @@ def query_api(api,config):
                 }}
     json_obj = json.dumps(query_json)
     result = api.post(config['api_url'],data=json_obj)
+    if result.status_code == 200:
+        result_dict = json.loads(result.text)
+        for id_num in result_dict['return']:
+            for e_mail_obj in range(0,len(result_dict['return'][id_num]['emails'])):
+                returned_addr.append(result_dict['return'][id_num]['emails'][e_mail_obj]['email'])
+        return(returned_addr)
+
+        
+    else:
+        kaput("API call did not return 200.  It returned {}".format(result))
     
 def main():
     config = read_config(argv[1])
     api = get_oauth_token(config)
-    query_api(api,config)
+    current_subscribers = query_api(api,config)
 
 
 if __name__ == '__main__':
