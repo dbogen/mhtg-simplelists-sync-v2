@@ -226,11 +226,47 @@ def add_members(api,config,members_to_add):
     #
     #print(result.text)
     result_dict = json.loads(result.text)
-    if result_dict['is_error'] == 1:
-        kaput "The API returned an error."
+    if result.status_code == 200: # keep going only if we had success
+        if result_dict['is_error'] == 1:
+            kaput("The API returned an error.")
+        else:
+            pass
+    else:
+        kaput("The API did not return 200.")
 
 def remove_expired_members(api,config,members_to_remove):
-    pass
+    if len(list(members_to_remove)) == 0:
+        print("No expired members to remove.")
+        return(0)
+
+    #
+    # This dict is dictated by the Simplelists API.
+    # Fortunately, members_to_remove already has the Simplelist
+    # contact IDs built in, so we just need the list of values from it
+    # to stick in the JSON for submission.
+    #
+    post_json = {
+            "entity": "contact",
+            "action": "delete",
+            "params":{
+                "cids" : list(members_to_remove.values())
+                }
+        }
+    json_obj = json.dumps(post_json)
+    #
+    # Uncomment to see the JSON for debugging.
+    #
+    #print(json_obj)
+    result = api.post(config['api_url'],data=json_obj)
+    result_dict = json.loads(result.text)
+    if result.status_code == 200: # keep going only if we had success
+        if result_dict['is_error'] == 1:
+            kaput("The API returned an error.")
+        else:
+            print("Expired members successfully removed.")
+    else:
+        kaput("The API did not return 200.")
+ 
     
 def main():
     config = read_config(argv[1])
