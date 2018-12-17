@@ -48,8 +48,8 @@ def query_api(api,config):
                 'match':'all',
                 'conditions':[
                     {
-                        'field':'surname',
-                        'value':config['list_name'],
+                        'field':'email',
+                        'value':config['search_text'],
                         'op':'like'
                         }
                     ]
@@ -65,6 +65,8 @@ def query_api(api,config):
         # The API supplies results in JSON.
         # Load the results into a dict so that we can iterate over them.
         #
+        # Uncomment this to see the JSON returned by your search.
+        #print(result.text)
         result_dict = json.loads(result.text)
         #
         # there's probably a better way to do this, but this is what I
@@ -165,6 +167,70 @@ def compare_lists(club_members,current_subscribers):
         else:
             members_to_add.append(club_member)
     return(current_subscribers,members_to_add)
+
+def add_members(api,config,members_to_add):
+    if len(members_to_add) == 0:
+        print("No new members to add.")
+        return(0)
+
+    new_members = []
+    #
+    # This dict is dictated by the Simplelists API.
+    #
+    post_json = {
+            "entity": "contact",
+            "action": "create",
+            "options": {
+                "append_lists":"true"
+            }
+        }
+ 
+    #
+    # Construct the dict format needed by the Simplelists API to get
+    # people added and on he right list.
+    #
+    for this_member in members_to_add:
+        temp_dict = {
+                    
+                        "emails" : [
+                        {
+                            "email":this_member
+                        }
+                        ],
+                        "lists": [
+                        {
+                            "name":config['list_name'],
+                            "id":config['list_id_num']
+                        }
+                        ] 
+                    }
+        new_members.append(temp_dict)
+        temp_dict.clear()
+
+    #
+    # Add the array of dicts to the post_json dict and then convert the
+    # whole mess to JSON.
+    #
+    post_json['params'] = new_members
+    json_obj = json.dumps(post_json)
+    #
+    # Uncomment this to see the JSON you're going to submit to the API.
+    #print(json_obj)
+    #
+    # Query the API using the Results object, the OAUTH token, and the
+    # JSON object we created above.
+    #
+    result = api.post(config['api_url'],data=json_obj)
+    #
+    # Uncomment this to see raw json returned by the API.
+    #
+    #print(result.text)
+    result_dict = json.loads(result.text)
+    if result_dict['is_error'] == 1:
+        kaput "The API returned an error."
+
+def remove_expired_members(api,config,members_to_remove):
+    pass
     
 def main():
     config = read_config(argv[1])
@@ -172,6 +238,8 @@ def main():
     current_subscribers = query_api(api,config)
     club_members = get_club_members(config)
     members_to_remove, members_to_add = compare_lists(club_members,current_subscribers)
+    add_members(api,config,members_to_add)
+    remove_expired_members(api,config,members_to_remove)
 
 
 

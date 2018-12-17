@@ -10,7 +10,9 @@
   "db_name":"MyDatabaseName",
   "db_username":"MyDatabaseUsername",
   "db_password":"MyDatabasePassword",
-  "list_name":"%",
+  "search_text":"%",
+  "list_name":"SampleList",
+  "list_id_num":12345,
   "db_query_string":"select a.id, a.user_email, b.user_id, b.status,b.membership_id from wp_users a inner join (select sub.user_id,sub.status,sub.membership_id from wp_pmpro_memberships_users sub where sub.status = \"active\" and sub.membership_id=1) as b where a.id = b.user_id;"
 }
 
