@@ -4,7 +4,6 @@
 #
 
 import json
-import oauthlib
 import mysql.connector
 from sys import argv, exit
 from os.path import exists
@@ -267,6 +266,15 @@ def remove_expired_members(api,config,members_to_remove):
     else:
         kaput("The API did not return 200.")
  
+def lambda_handler(event,context):
+    config_file = 'config.json'
+    config = read_config(config_file)
+    api = get_oauth_token(config)
+    current_subscribers = query_api(api,config)
+    club_members = get_club_members(config)
+    members_to_remove, members_to_add = compare_lists(club_members,current_subscribers)
+    add_members(api,config,members_to_add)
+    remove_expired_members(api,config,members_to_remove)
     
 def main():
     config = read_config(argv[1])
@@ -276,8 +284,6 @@ def main():
     members_to_remove, members_to_add = compare_lists(club_members,current_subscribers)
     add_members(api,config,members_to_add)
     remove_expired_members(api,config,members_to_remove)
-
-
 
 if __name__ == '__main__':
     main()
